@@ -12,6 +12,11 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0',
     port: 5173,
+    allowedHosts: [
+      'sanus.sistemamednote.online',
+      'localhost',
+      '127.0.0.1'
+    ],
   },
   build: {
     assetsDir: 'assets',
