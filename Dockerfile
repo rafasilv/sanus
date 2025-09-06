@@ -1,3 +1,4 @@
+
 # Stage de build
 FROM node:18-alpine AS builder
 WORKDIR /app
@@ -18,9 +19,10 @@ RUN npm run build
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-# Copiar arquivos buildados
+# Copiar arquivos buildados e configuração
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/vite.config.ts ./
 
 # Instalar apenas dependências necessárias para preview
 RUN npm ci --only=production
