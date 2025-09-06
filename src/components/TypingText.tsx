@@ -9,7 +9,7 @@ interface TypingTextProps {
 
 export function TypingText({ text, speed = 100, delay = 0, className = "" }: TypingTextProps) {
   const [displayedText, setDisplayedText] = useState("")
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [, setCurrentIndex] = useState(0)
   const [showCursor, setShowCursor] = useState(true)
 
   useEffect(() => {

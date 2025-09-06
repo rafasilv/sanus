@@ -21,7 +21,7 @@ export function Header() {
               >
                 <a className="flex items-center" href="/">
                   <img 
-                    src="/src/assets/logo-compact.png" 
+                    src="/logo-compact.png" 
                     alt="Sanus" 
                     className="h-10 w-10"
                   />

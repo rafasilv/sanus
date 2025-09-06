@@ -7,7 +7,7 @@ export function Hero() {
     <section 
       className="h-screen max-h-screen flex items-start justify-center px-4 pt-4 md:pt-8 lg:pt-12 relative bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "url('/src/assets/hero-background.jpg')"
+        backgroundImage: "url('/hero-background.jpg')"
       }}
     >
       {/* Overlay escuro para melhorar legibilidade */}
@@ -21,7 +21,7 @@ export function Hero() {
           transition={{ duration: 0.5 }}
         >
           <img 
-            src="/src/assets/logo-sanus.svg" 
+            src="/logo-sanus.svg" 
             alt="Sanus" 
             className="h-56 w-56 sm:h-64 sm:w-64 md:h-72 md:w-72 lg:h-80 lg:w-80 xl:h-96 xl:w-96"
           />
