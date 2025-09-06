@@ -24,8 +24,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/vite.config.ts ./
 
-# Instalar apenas dependências necessárias para preview
-RUN npm ci --only=production
+# Instalar dependências necessárias para preview (incluindo Vite)
+RUN npm ci
 
 # Expor porta
 EXPOSE 5173
