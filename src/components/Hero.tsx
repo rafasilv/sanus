@@ -13,7 +13,7 @@ export function Hero() {
       {/* Overlay escuro para melhorar legibilidade */}
       <div className="absolute inset-0 bg-black/40"></div>
       
-      <div className="container flex flex-col items-center gap-1 md:gap-3 text-center max-w-6xl relative z-10">
+      <div className="container flex flex-col items-center gap-4 md:gap-3 text-center max-w-6xl relative z-10">
         <motion.div
           className="flex flex-col items-center gap-3 md:gap-6"
           initial={{ opacity: 0, y: 20 }}
@@ -40,7 +40,7 @@ export function Hero() {
         </motion.div>
         
         <motion.p
-          className="max-w-3xl leading-relaxed text-foreground/80 text-sm sm:text-base md:text-lg"
+          className="max-w-3xl leading-relaxed text-foreground/80 text-sm sm:text-base md:text-lg mb-4 md:mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -49,7 +49,7 @@ export function Hero() {
         </motion.p>
         
         <motion.div
-          className="flex flex-col gap-3 sm:flex-row sm:gap-4"
+          className="flex flex-col gap-3 sm:flex-row sm:gap-4 mt-2 md:mt-0"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
