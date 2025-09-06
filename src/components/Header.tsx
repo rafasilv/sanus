@@ -19,22 +19,28 @@ export function Header() {
                 delay={0}
                 shouldAnimate={true}
               >
-                <a className="flex items-center" href="/">
+                <button 
+                  className="flex items-center cursor-pointer"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
                   <img 
                     src="/logo-compact.png" 
                     alt="Sanus" 
                     className="h-10 w-10"
                   />
-                </a>
+                </button>
               </RotatingText>
             </div>
-            <a href="/" className="text-lg sm:text-xl font-bold text-sanus-gold font-garamond tracking-wider whitespace-nowrap hover:opacity-80 transition-opacity">
+            <button 
+              className="text-lg sm:text-xl font-bold text-sanus-gold font-garamond tracking-wider whitespace-nowrap hover:opacity-80 transition-opacity cursor-pointer"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
               <RotatingText 
                 text="SANUS FINANCE"
                 delay={300}
                 shouldAnimate={true}
               />
-            </a>
+            </button>
           </div>
         </div>
 
