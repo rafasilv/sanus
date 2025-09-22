@@ -13,7 +13,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     allowedHosts: [
-      'sanus.sistemamednote.online',
+      'sanusfinance.com.br',
       'localhost',
       '127.0.0.1'
     ],
