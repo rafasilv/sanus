@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 45 100% 50%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 45 20% 15%;
+    --secondary-foreground: 45 100% 90%;
+    --muted: 45 10% 95%;
+    --muted-foreground: 45 5% 45%;
+    --accent: 45 100% 60%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 45 10% 90%;
+    --input: 45 10% 90%;
+    --ring: 45 100% 50%;
+    --chart-1: 45 100% 50%;
+    --chart-2: 45 80% 60%;
+    --chart-3: 45 60% 40%;
+    --chart-4: 45 100% 70%;
+    --chart-5: 45 90% 55%;
+    --radius: 0.5rem
+  }
+  .dark {
+    --background: 0 0% 5%;
+    --foreground: 45 100% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 45 100% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 45 100% 95%;
+    --primary: 45 100% 60%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 45 20% 12%;
+    --secondary-foreground: 45 100% 90%;
+    --muted: 45 10% 15%;
+    --muted-foreground: 45 5% 65%;
+    --accent: 45 100% 70%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 45 10% 20%;
+    --input: 45 10% 20%;
+    --ring: 45 100% 60%;
+    --chart-1: 45 100% 60%;
+    --chart-2: 45 80% 70%;
+    --chart-3: 45 60% 50%;
+    --chart-4: 45 100% 80%;
+    --chart-5: 45 90% 65%
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF8C00 50%, #FFD700 75%, #FFA500 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: goldShimmer 3s ease-in-out infinite;
+  }
+  
+  .bg-gold-gradient {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF8C00 50%, #FFD700 75%, #FFA500 100%);
+    background-size: 200% 200%;
+    animation: goldShimmer 3s ease-in-out infinite;
+  }
+  
+  .border-gold {
+    border-color: #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  
+  .shadow-gold {
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+  }
+  
+  .btn-gold-outline {
+    border-color: #FFD700 !important;
+    color: #FFD700 !important;
+    background-color: transparent !important;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-gold-outline:hover {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF8C00 50%, #FFD700 75%, #FFA500 100%) !important;
+    background-size: 200% 200% !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4) !important;
+  }
+  
+  @keyframes goldShimmer {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+}
