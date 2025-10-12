@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,12 +27,179 @@ export default function SimulacaoPage() {
     tempoAtividade: "",
     convenioPrincipal: "",
     convenioOutros: "",
-    vinculadoMdSaude: "",
+    vinculacoes: [] as string[], // Array de vinculações selecionadas
     
     // Bloco 3 - Dados da operação
     valorAntecipar: "",
     prazoRecebimento: ""
   });
+
+  const [simulacao, setSimulacao] = useState({
+    taxaBase: 0,
+    descontoVinculacao: 0,
+    taxaFinal: 0,
+    valorDesconto: 0,
+    valorReceber: 0,
+    nivelRisco: ""
+  });
+
+  const [mostrarSimulacao, setMostrarSimulacao] = useState(false);
+
+  // Matriz de taxas por risco e prazo
+  const matrizTaxas = {
+    baixo: { "30": 2.50, "60": 2.80, "90": 3.30, "120": 3.80 },
+    medio: { "30": 2.80, "60": 3.30, "90": 3.80, "120": 4.40 },
+    alto: { "30": 3.20, "60": 3.80, "90": 4.40, "120": 5.00 }
+  };
+
+  // Convênios por nível de risco
+  const conveniosRisco = {
+    baixo: ["Unimed Nacional", "Bradesco Saúde", "Amil", "SulAmérica", "Porto Saúde"],
+    medio: ["Unimed regional", "Benevix", "MedSênior", "Samp"],
+    alto: ["Outro"]
+  };
+
+  // Função para calcular simulação
+  const calcularSimulacao = () => {
+    if (formData.convenioPrincipal && formData.valorAntecipar && formData.prazoRecebimento) {
+      const valorLimpo = formData.valorAntecipar.replace(/[^\d]/g, '');
+      const valor = parseFloat(valorLimpo) / 100;
+      const prazo = formData.prazoRecebimento;
+      
+      if (valor > 0) {
+        // Determinar nível de risco
+        let nivelRisco = "alto";
+        if (conveniosRisco.baixo.includes(formData.convenioPrincipal)) {
+          nivelRisco = "baixo";
+        } else if (conveniosRisco.medio.includes(formData.convenioPrincipal)) {
+          nivelRisco = "medio";
+        }
+        
+        // Obter taxa base
+        const taxaBase = matrizTaxas[nivelRisco as keyof typeof matrizTaxas][prazo as keyof typeof matrizTaxas.baixo];
+        
+        // Calcular desconto por vinculação (considerar o maior)
+        let descontoVinculacao = 0;
+        if (formData.vinculacoes.length > 0) {
+          // Considerar o maior desconto entre as vinculações selecionadas
+          const descontos = formData.vinculacoes.map(vinculacao => {
+            if (vinculacao === "grupo-md") return 0.2;
+            if (vinculacao === "clube-md") return 0.15;
+            return 0;
+          });
+          descontoVinculacao = Math.max(...descontos);
+        }
+        
+        const taxaFinal = Math.max(0, taxaBase - descontoVinculacao);
+        const valorDesconto = (valor * taxaFinal) / 100;
+        const valorReceber = valor - valorDesconto;
+        
+        setSimulacao({
+          taxaBase,
+          descontoVinculacao,
+          taxaFinal,
+          valorDesconto,
+          valorReceber,
+          nivelRisco
+        });
+        
+        setMostrarSimulacao(true);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Funções de validação
+  const validarCPF = (cpf: string) => {
+    const cpfLimpo = cpf.replace(/\D/g, '');
+    if (cpfLimpo.length !== 11) return false;
+    
+    // Verificar se todos os dígitos são iguais
+    if (/^(\d)\1{10}$/.test(cpfLimpo)) return false;
+    
+    // Validar dígitos verificadores
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+      soma += parseInt(cpfLimpo.charAt(i)) * (10 - i);
+    }
+    let resto = 11 - (soma % 11);
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpfLimpo.charAt(9))) return false;
+    
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+      soma += parseInt(cpfLimpo.charAt(i)) * (11 - i);
+    }
+    resto = 11 - (soma % 11);
+    if (resto === 10 || resto === 11) resto = 0;
+    return resto === parseInt(cpfLimpo.charAt(10));
+  };
+
+  const validarTelefone = (telefone: string) => {
+    const telefoneLimpo = telefone.replace(/\D/g, '');
+    return telefoneLimpo.length >= 10 && telefoneLimpo.length <= 11;
+  };
+
+  const validarCNPJ = (cnpj: string) => {
+    const cnpjLimpo = cnpj.replace(/\D/g, '');
+    if (cnpjLimpo.length !== 14) return false;
+    
+    // Verificar se todos os dígitos são iguais
+    if (/^(\d)\1{13}$/.test(cnpjLimpo)) return false;
+    
+    // Validar primeiro dígito verificador
+    let soma = 0;
+    let peso = 5;
+    for (let i = 0; i < 12; i++) {
+      soma += parseInt(cnpjLimpo.charAt(i)) * peso;
+      peso = peso === 2 ? 9 : peso - 1;
+    }
+    let resto = soma % 11;
+    let dv1 = resto < 2 ? 0 : 11 - resto;
+    if (dv1 !== parseInt(cnpjLimpo.charAt(12))) return false;
+    
+    // Validar segundo dígito verificador
+    soma = 0;
+    peso = 6;
+    for (let i = 0; i < 13; i++) {
+      soma += parseInt(cnpjLimpo.charAt(i)) * peso;
+      peso = peso === 2 ? 9 : peso - 1;
+    }
+    resto = soma % 11;
+    let dv2 = resto < 2 ? 0 : 11 - resto;
+    return dv2 === parseInt(cnpjLimpo.charAt(13));
+  };
+
+  const formatarCPF = (cpf: string) => {
+    const cpfLimpo = cpf.replace(/\D/g, '');
+    return cpfLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
+  const formatarCNPJ = (cnpj: string) => {
+    const cnpjLimpo = cnpj.replace(/\D/g, '');
+    return cnpjLimpo.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  };
+
+  const formatarTelefone = (telefone: string) => {
+    const telefoneLimpo = telefone.replace(/\D/g, '');
+    if (telefoneLimpo.length === 11) {
+      return telefoneLimpo.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (telefoneLimpo.length === 10) {
+      return telefoneLimpo.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+    return telefone;
+  };
+
+  const formatarValor = (valor: string) => {
+    const valorLimpo = valor.replace(/\D/g, '');
+    if (valorLimpo === '') return '';
+    const valorNumerico = parseFloat(valorLimpo) / 100;
+    return valorNumerico.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -41,11 +208,67 @@ export default function SimulacaoPage() {
     }));
   };
 
+  const handleVinculacaoChange = (vinculacao: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      vinculacoes: checked 
+        ? [...prev.vinculacoes, vinculacao]
+        : prev.vinculacoes.filter(v => v !== vinculacao)
+    }));
+  };
+
+  // Função para verificar se o formulário está válido para simulação
+  const isFormValid = () => {
+    // Verificar campos básicos obrigatórios
+    if (!formData.tipoInicial) return false;
+    if (!formData.nomeCompleto.trim()) return false;
+    if (!formData.cpfCnpj.trim()) return false;
+    if (!formData.email.trim()) return false;
+    if (!formData.telefone.trim()) return false;
+    if (!formData.tempoAtividade.trim()) return false;
+    if (!formData.convenioPrincipal) return false;
+    if (!formData.valorAntecipar.trim()) return false;
+    if (!formData.prazoRecebimento) return false;
+
+    // Verificar se CPF/CNPJ é válido
+    if (formData.tipoInicial === "medico" && !validarCPF(formData.cpfCnpj)) return false;
+    if (formData.tipoInicial === "empresa" && !validarCNPJ(formData.cpfCnpj)) return false;
+
+    // Verificar se telefone é válido
+    if (!validarTelefone(formData.telefone)) return false;
+
+    // Verificar se email é válido
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) return false;
+
+    // Verificar se valor é válido
+    const valorLimpo = formData.valorAntecipar.replace(/[^\d]/g, '');
+    const valor = parseFloat(valorLimpo) / 100;
+    if (valor <= 0) return false;
+
+    // Se convênio é "Outro", verificar se campo outros está preenchido
+    if (formData.convenioPrincipal === "Outro" && !formData.convenioOutros.trim()) return false;
+
+    return true;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Dados do formulário:", formData);
-    // Aqui você pode implementar a lógica de envio dos dados
-    alert("Simulação enviada com sucesso! Entraremos em contato em breve.");
+    const calculou = calcularSimulacao();
+    if (calculou) {
+      // Salvar dados no localStorage para a próxima página
+      const dadosCompletos = {
+        formData,
+        simulacao,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('simulacaoAntecipacao', JSON.stringify(dadosCompletos));
+      
+      // Redirecionar para a página de resultados
+      window.location.href = '/antecipacao/resultado';
+    } else {
+      alert("Por favor, preencha todos os campos obrigatórios para simular.");
+    }
   };
 
   return (
@@ -153,10 +376,27 @@ export default function SimulacaoPage() {
                             <Input
                               id="cpfCnpj"
                               value={formData.cpfCnpj}
-                              onChange={(e) => handleInputChange("cpfCnpj", e.target.value)}
+                              onChange={(e) => {
+                                const valor = formData.tipoInicial === "medico" 
+                                  ? formatarCPF(e.target.value)
+                                  : formatarCNPJ(e.target.value);
+                                handleInputChange("cpfCnpj", valor);
+                              }}
                               placeholder={formData.tipoInicial === "medico" ? "000.000.000-00" : "00.000.000/0000-00"}
                               required
+                              className={
+                                formData.cpfCnpj && (
+                                  (formData.tipoInicial === "medico" && !validarCPF(formData.cpfCnpj)) ||
+                                  (formData.tipoInicial === "empresa" && !validarCNPJ(formData.cpfCnpj))
+                                ) ? "border-red-500" : ""
+                              }
                             />
+                            {formData.cpfCnpj && formData.tipoInicial === "medico" && !validarCPF(formData.cpfCnpj) && (
+                              <p className="text-sm text-red-500">CPF inválido</p>
+                            )}
+                            {formData.cpfCnpj && formData.tipoInicial === "empresa" && !validarCNPJ(formData.cpfCnpj) && (
+                              <p className="text-sm text-red-500">CNPJ inválido</p>
+                            )}
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="email">E-mail</Label>
@@ -174,10 +414,17 @@ export default function SimulacaoPage() {
                             <Input
                               id="telefone"
                               value={formData.telefone}
-                              onChange={(e) => handleInputChange("telefone", e.target.value)}
+                              onChange={(e) => {
+                                const valor = formatarTelefone(e.target.value);
+                                handleInputChange("telefone", valor);
+                              }}
                               placeholder="(11) 99999-9999"
                               required
+                              className={formData.telefone && !validarTelefone(formData.telefone) ? "border-red-500" : ""}
                             />
+                            {formData.telefone && !validarTelefone(formData.telefone) && (
+                              <p className="text-sm text-red-500">Telefone inválido</p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -219,13 +466,19 @@ export default function SimulacaoPage() {
                                 <SelectValue placeholder="Selecione seu convênio principal" />
                               </SelectTrigger>
                               <SelectContent className="z-50 bg-background border border-input">
-                                <SelectItem value="unimed">Unimed</SelectItem>
-                                <SelectItem value="bradesco">Bradesco Saúde</SelectItem>
-                                <SelectItem value="sulamerica">SulAmérica</SelectItem>
-                                <SelectItem value="outros">Outros</SelectItem>
+                                <SelectItem value="Unimed Nacional">Unimed Nacional</SelectItem>
+                                <SelectItem value="Bradesco Saúde">Bradesco Saúde</SelectItem>
+                                <SelectItem value="Amil">Amil</SelectItem>
+                                <SelectItem value="SulAmérica">SulAmérica</SelectItem>
+                                <SelectItem value="Porto Saúde">Porto Saúde</SelectItem>
+                                <SelectItem value="Unimed regional">Unimed regional</SelectItem>
+                                <SelectItem value="Benevix">Benevix</SelectItem>
+                                <SelectItem value="MedSênior">MedSênior</SelectItem>
+                                <SelectItem value="Samp">Samp</SelectItem>
+                                <SelectItem value="Outro">Outro</SelectItem>
                               </SelectContent>
                             </Select>
-                            {formData.convenioPrincipal === "outros" && (
+                            {formData.convenioPrincipal === "Outro" && (
                               <div className="mt-2">
                                 <Label htmlFor="convenioOutros">Especifique o convênio</Label>
                                 <Input
@@ -241,20 +494,29 @@ export default function SimulacaoPage() {
                           
                           {formData.tipoInicial === "medico" && (
                             <div className="space-y-3">
-                              <Label>Você é médico vinculado à MD Saúde ou associado Clube MD?</Label>
-                              <RadioGroup
-                                value={formData.vinculadoMdSaude}
-                                onValueChange={(value) => handleInputChange("vinculadoMdSaude", value)}
-                              >
+                              <Label>Você é parte do grupo MD Saúde ou do Clube MD?</Label>
+                              <div className="space-y-2">
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="sim" id="vinculado-sim" />
-                                  <Label htmlFor="vinculado-sim">Sim</Label>
+                                  <input
+                                    type="checkbox"
+                                    id="grupo-md"
+                                    checked={formData.vinculacoes.includes("grupo-md")}
+                                    onChange={(e) => handleVinculacaoChange("grupo-md", e.target.checked)}
+                                    className="rounded border-gray-300"
+                                  />
+                                  <Label htmlFor="grupo-md">MD Saúde</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="nao" id="vinculado-nao" />
-                                  <Label htmlFor="vinculado-nao">Não</Label>
+                                  <input
+                                    type="checkbox"
+                                    id="clube-md"
+                                    checked={formData.vinculacoes.includes("clube-md")}
+                                    onChange={(e) => handleVinculacaoChange("clube-md", e.target.checked)}
+                                    className="rounded border-gray-300"
+                                  />
+                                  <Label htmlFor="clube-md">Clube MD</Label>
                                 </div>
-                              </RadioGroup>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -267,13 +529,15 @@ export default function SimulacaoPage() {
                         <h3 className="text-lg font-semibold text-sanus-gold border-b pb-2">Dados da operação</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="valorAntecipar">Valor a antecipar (R$)</Label>
+                            <Label htmlFor="valorAntecipar">Valor a antecipar</Label>
                             <Input
                               id="valorAntecipar"
-                              type="number"
                               value={formData.valorAntecipar}
-                              onChange={(e) => handleInputChange("valorAntecipar", e.target.value)}
-                              placeholder="0,00"
+                              onChange={(e) => {
+                                const valor = formatarValor(e.target.value);
+                                handleInputChange("valorAntecipar", valor);
+                              }}
+                              placeholder="R$ 0,00"
                               required
                             />
                           </div>
@@ -305,16 +569,19 @@ export default function SimulacaoPage() {
                       </div>
                     )}
 
-                    {/* Botão CTA */}
-                    <div className="flex justify-center pt-8">
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="bg-gold-gradient border-gold shadow-gold hover:shadow-gold/60 text-black font-semibold px-8"
-                      >
-                        Simular agora
-                      </Button>
-                    </div>
+
+                    {/* Botão CTA - só aparece quando formulário válido */}
+                    {isFormValid() && (
+                      <div className="flex justify-center pt-8">
+                        <Button
+                          type="submit"
+                          size="lg"
+                          className="bg-gold-gradient border-gold shadow-gold hover:shadow-gold/60 text-black font-semibold px-8"
+                        >
+                          Simular agora
+                        </Button>
+                      </div>
+                    )}
                   </form>
                 </CardContent>
               </Card>
