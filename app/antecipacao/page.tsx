@@ -350,6 +350,92 @@ export default function SimulacaoPage() {
                       </RadioGroup>
                     </div>
 
+                    {/* Formulário desfocado como prévia */}
+                    {!formData.tipoInicial && (
+                      <div className="space-y-4 opacity-50 blur-sm pointer-events-none">
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-sanus-gold border-b pb-2">
+                            Identificação
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Nome completo / Razão Social</Label>
+                              <Input placeholder="Digite seu nome completo" disabled />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>CPF / CNPJ</Label>
+                              <Input placeholder="000.000.000-00" disabled />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>E-mail</Label>
+                              <Input placeholder="seu@email.com" disabled />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Telefone/WhatsApp</Label>
+                              <Input placeholder="(11) 99999-9999" disabled />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-sanus-gold border-b pb-2">
+                            Perfil
+                          </h3>
+                          <div className="space-y-4">
+                            <div className="space-y-3">
+                              <Label>Tempo de formado / Tempo de mercado</Label>
+                              <div className="flex items-center gap-2">
+                                <Input className="w-20" placeholder="anos" disabled />
+                                <span>anos</span>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label>Convênio principal</Label>
+                              <Select disabled>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione seu convênio principal" />
+                                </SelectTrigger>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-sanus-gold border-b pb-2">
+                            Dados da operação
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Valor a antecipar</Label>
+                              <Input placeholder="R$ 0,00" disabled />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Prazo de recebimento</Label>
+                              <div className="flex flex-wrap gap-4">
+                                <div className="flex items-center space-x-2">
+                                  <input type="radio" disabled />
+                                  <Label>30 dias</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input type="radio" disabled />
+                                  <Label>60 dias</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input type="radio" disabled />
+                                  <Label>90 dias</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input type="radio" disabled />
+                                  <Label>120 dias</Label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Bloco 1 - Identificação básica (dinâmico) */}
                     {formData.tipoInicial && (
                       <div className="space-y-4">
