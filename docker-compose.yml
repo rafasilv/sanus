@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  sanus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sanus
+    restart: unless-stopped
+    environment:
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    # Não é necessário mapear porta quando usa caddy-gen por labels
+    # ports:
+    #   - "3000:3000"
+    labels:
+      virtual.host: 'sanusfinance.com.br'
+      virtual.port: '3000'
+      virtual.tls-email: 'rafasilv@gmail.com'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
