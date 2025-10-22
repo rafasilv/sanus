@@ -30,7 +30,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 
 # Build da aplicação (desabilitar ESLint para Docker)
-RUN ESLINT_NO_DEV_ERRORS=true npm run build
+RUN DISABLE_ESLINT_PLUGIN=true npm run build
 
 # Estágio 3: Imagem de produção
 FROM node:20-alpine AS runner
