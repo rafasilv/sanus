@@ -12,8 +12,8 @@ RUN apk add --no-cache libc6-compat
 # Copiar arquivos de dependências
 COPY package.json package-lock.json* ./
 
-# Instalar dependências
-RUN npm ci --only=production
+# Instalar todas as dependências (incluindo devDependencies para build)
+RUN npm ci
 
 # Estágio 2: Build da aplicação
 FROM node:20-alpine AS builder
